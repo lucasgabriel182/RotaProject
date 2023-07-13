@@ -20,17 +20,25 @@ def template_render():
         conn = mydb
         cursor = conn.cursor()
 
-        # Insira os dados do usuário na tabela
-        query = "INSERT INTO usuarios (email, senha) VALUES (%s, %s)"
-        values = (email, senha)
-        cursor.execute(query, values)
+        # Verifique se o usuário já está cadastrado
+        query = "SELECT * FROM usuarios WHERE email = %s"
+        cursor.execute(query, (email,))
+        result = cursor.fetchone()
 
-        # Commit e feche a conexão com o banco de dados
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if result:
+            return 'Usuário já cadastrado!'
+        else:
+            # Insira os dados do usuário na tabela
+            query = "INSERT INTO usuarios (email, senha) VALUES (%s, %s)"
+            values = (email, senha)
+            cursor.execute(query, values)
 
-        return 'Usuário cadastrado com sucesso!'
+            # Commit e feche a conexão com o banco de dados
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return 'Usuário cadastrado com sucesso!'
 
     return '<form method="POST" action="/"> \
                 <input type="text" name="email" placeholder="E-mail"><br> \
